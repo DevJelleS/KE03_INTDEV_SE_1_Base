@@ -4,23 +4,35 @@
     ViewData["Title"] = "Fout";
 }
 
-<h1 class="text-danger">Fout.</h1>
-<h2 class="text-danger">Er is een fout opgetreden bij het verwerken van uw verzoek.</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body">
+                    <h1 class="card-title text-danger mb-4">Fout.</h1>
+                    <h2 class="card-subtitle text-danger mb-4">Er is een fout opgetreden bij het verwerken van uw verzoek.</h2>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Verzoek ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+                    @if (Model.ShowRequestId)
+                    {
+                        <div class="alert alert-info mb-4">
+                            <strong>Verzoek ID:</strong> <code>@Model.RequestId</code>
+                        </div>
+                    }
 
-<h3>Ontwikkelingsmodus</h3>
-<p>
-    Wisselen naar de <strong>Ontwikkelingsomgeving</strong> zal gedetailleerde informatie over de fout weergeven.
-</p>
-<p>
-    <strong>De ontwikkelingsomgeving mag niet worden ingeschakeld voor geïmplementeerde applicaties.</strong>
-    Dit kan resulteren in het weergeven van gevoelige informatie aan eindgebruikers.
-    Voor lokale foutopsporing, schakel de <strong>Ontwikkelingsomgeving</strong> in door de <strong>ASPNETCORE_ENVIRONMENT</strong> omgevingsvariabele in te stellen op <strong>Development</strong>
-    en herstart de applicatie.
-</p>
+                    <h3 class="h4 mb-3">Ontwikkelingsmodus</h3>
+                    <div class="alert alert-warning">
+                        <p class="mb-3">
+                            Wisselen naar de <strong>Ontwikkelingsomgeving</strong> zal gedetailleerde informatie over de fout weergeven.
+                        </p>
+                        <p class="mb-0">
+                            <strong>De ontwikkelingsomgeving mag niet worden ingeschakeld voor geïmplementeerde applicaties.</strong>
+                            Dit kan resulteren in het weergeven van gevoelige informatie aan eindgebruikers.
+                            Voor lokale foutopsporing, schakel de <strong>Ontwikkelingsomgeving</strong> in door de <strong>ASPNETCORE_ENVIRONMENT</strong> omgevingsvariabele in te stellen op <strong>Development</strong>
+                            en herstart de applicatie.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

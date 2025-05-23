@@ -5,30 +5,38 @@
 }
 
 <div class="container">
-    <h2>Selecteer Klant</h2>
+    <h2 class="mb-4">Selecteer Klant</h2>
     <div class="row">
-        <div class="col-md-12">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Naam</th>
-                        <th>Adres</th>
-                        <th>Actie</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var customer in Model.Customers)
-                    {
-                        <tr>
-                            <td>@customer.Name</td>
-                            <td>@customer.Address</td>
-                            <td>
-                                <a asp-page="./CreateOrder" asp-route-customerId="@customer.Id" class="btn btn-primary">Selecteer</a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Naam</th>
+                                    <th>Adres</th>
+                                    <th class="text-end">Actie</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var customer in Model.Customers)
+                                {
+                                    <tr>
+                                        <td>@customer.Name</td>
+                                        <td>@customer.Address</td>
+                                        <td class="text-end">
+                                            <a asp-page="./CreateOrder" asp-route-customerId="@customer.Id" class="btn btn-primary">
+                                                <i class="fas fa-shopping-cart"></i> Selecteer
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div> 

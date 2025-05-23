@@ -5,16 +5,15 @@
 }
 
 <div class="container">
-    <h2>Bestelgeschiedenis voor @Model.Customer.Name</h2>
-    
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <a asp-page="./CreateOrder" asp-route-customerId="@Model.Customer.Id" class="btn btn-primary">Nieuwe Bestelling</a>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Bestelgeschiedenis voor @Model.Customer.Name</h2>
+        <a asp-page="./CreateOrder" asp-route-customerId="@Model.Customer.Id" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nieuwe Bestelling
+        </a>
     </div>
 
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-12">
             @if (!Model.Orders.Any())
             {
                 <div class="alert alert-info">
@@ -25,10 +24,10 @@
             {
                 @foreach (var order in Model.Orders)
                 {
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header bg-light">
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                                <div class="mb-2 mb-md-0">
                                     <strong>Bestelling #@order.Id</strong>
                                     <span class="ms-2 badge bg-@(order.Status == "Confirmed" ? "success" : "warning")">
                                         @(order.Status == "Confirmed" ? "Bevestigd" : "In behandeling")
@@ -40,33 +39,35 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th>Aantal</th>
-                                        <th>Prijs</th>
-                                        <th>Subtotaal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in order.OrderProducts)
-                                    {
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
                                         <tr>
-                                            <td>@item.Product.Name</td>
-                                            <td>@item.Quantity</td>
-                                            <td>€@item.Product.Price</td>
-                                            <td>€@(item.Product.Price * item.Quantity)</td>
+                                            <th>Product</th>
+                                            <th>Aantal</th>
+                                            <th>Prijs</th>
+                                            <th>Subtotaal</th>
                                         </tr>
-                                    }
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th colspan="3">Totaal</th>
-                                        <th>€@order.Total</th>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in order.OrderProducts)
+                                        {
+                                            <tr>
+                                                <td>@item.Product.Name</td>
+                                                <td>@item.Quantity</td>
+                                                <td>€@item.Product.Price</td>
+                                                <td>€@(item.Product.Price * item.Quantity)</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                    <tfoot class="table-light">
+                                        <tr>
+                                            <th colspan="3">Totaal</th>
+                                            <th>€@order.Total</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 }
