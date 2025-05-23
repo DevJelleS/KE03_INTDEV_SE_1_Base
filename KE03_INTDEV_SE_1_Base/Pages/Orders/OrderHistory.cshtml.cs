@@ -15,7 +15,7 @@ namespace KE03_INTDEV_SE_1_Base.Pages.Orders
             _context = context;
         }
 
-        public Customer Customer { get; set; }
+        public Customer? Customer { get; set; }
         public IList<Order> Orders { get; set; } = new List<Order>();
 
         public async Task<IActionResult> OnGetAsync(int customerId)
@@ -27,7 +27,8 @@ namespace KE03_INTDEV_SE_1_Base.Pages.Orders
             }
 
             Orders = await _context.Orders
-                .Include(o => o.Products)
+                .Include(o => o.OrderProducts)
+                    .ThenInclude(op => op.Product)
                 .Where(o => o.CustomerId == customerId)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();

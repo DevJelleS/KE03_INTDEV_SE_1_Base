@@ -20,7 +20,8 @@ namespace KE03_INTDEV_SE_1_Base.Controllers
         public async Task<IActionResult> GetCustomerOrders(int customerId)
         {
             var orders = await _context.Orders
-                .Include(o => o.Products)
+                .Include(o => o.OrderProducts)
+                    .ThenInclude(op => op.Product)
                 .Where(o => o.CustomerId == customerId)
                 .OrderByDescending(o => o.OrderDate)
                 .Select(o => new
@@ -28,11 +29,12 @@ namespace KE03_INTDEV_SE_1_Base.Controllers
                     o.Id,
                     o.OrderDate,
                     o.Status,
-                    Products = o.Products.Select(p => new
+                    Products = o.OrderProducts.Select(op => new
                     {
-                        p.Id,
-                        p.Name,
-                        p.Price
+                        op.Product.Id,
+                        op.Product.Name,
+                        op.Product.Price,
+                        op.Quantity
                     })
                 })
                 .ToListAsync();

@@ -1,52 +1,67 @@
 @page "{customerId:int}"
 @model KE03_INTDEV_SE_1_Base.Pages.Orders.CreateOrderModel
 @{
-    ViewData["Title"] = "Create Order";
+    ViewData["Title"] = "Nieuwe Bestelling";
 }
 
 <div class="container">
-    <h2>Create Order for @Model.Customer.Name</h2>
+    <h2>Nieuwe Bestelling voor @Model.Customer.Name</h2>
     
     <div class="row mb-4">
         <div class="col-md-12">
-            <h4>Add Products</h4>
+            <h4>Producten Toevoegen</h4>
             <form method="post" asp-page-handler="AddProduct">
                 <input type="hidden" name="customerId" value="@Model.Customer.Id" />
-                <div class="form-group">
-                    <select name="productId" class="form-control">
-                        @foreach (var product in Model.AvailableProducts)
-                        {
-                            <option value="@product.Id">@product.Name - $@product.Price</option>
-                        }
-                    </select>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <select name="productId" class="form-control">
+                                @foreach (var product in Model.AvailableProducts)
+                                {
+                                    <option value="@product.Id">@product.Name - €@product.Price</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <input type="number" name="quantity" class="form-control" value="1" min="1" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary">Toevoegen</button>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary mt-2">Add Product</button>
             </form>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12">
-            <h4>Current Order</h4>
+            <h4>Huidige Bestelling</h4>
             <table class="table">
                 <thead>
                     <tr>
                         <th>Product</th>
-                        <th>Price</th>
-                        <th>Action</th>
+                        <th>Aantal</th>
+                        <th>Prijs</th>
+                        <th>Subtotaal</th>
+                        <th>Actie</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var product in Model.SelectedProducts)
+                    @foreach (var item in Model.SelectedProducts)
                     {
                         <tr>
-                            <td>@product.Name</td>
-                            <td>$@product.Price</td>
+                            <td>@item.Product.Name</td>
+                            <td>@item.Quantity</td>
+                            <td>€@item.Product.Price</td>
+                            <td>€@(item.Product.Price * item.Quantity)</td>
                             <td>
                                 <form method="post" asp-page-handler="RemoveProduct" style="display: inline;">
                                     <input type="hidden" name="customerId" value="@Model.Customer.Id" />
-                                    <input type="hidden" name="productId" value="@product.Id" />
-                                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                    <input type="hidden" name="productId" value="@item.Product.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Verwijderen</button>
                                 </form>
                             </td>
                         </tr>
@@ -54,8 +69,8 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th>Total</th>
-                        <th>$@Model.SelectedProducts.Sum(p => p.Price)</th>
+                        <th colspan="3">Totaal</th>
+                        <th>€@Model.SelectedProducts.Sum(p => p.Product.Price * p.Quantity)</th>
                         <th></th>
                     </tr>
                 </tfoot>
@@ -67,7 +82,7 @@
         <div class="col-md-12">
             <form method="post" asp-page-handler="ConfirmOrder">
                 <input type="hidden" name="customerId" value="@Model.Customer.Id" />
-                <button type="submit" class="btn btn-success" @(Model.SelectedProducts.Any() ? "" : "disabled")>Confirm Order</button>
+                <button type="submit" class="btn btn-success" @(Model.SelectedProducts.Any() ? "" : "disabled")>Bestelling Bevestigen</button>
             </form>
         </div>
     </div>

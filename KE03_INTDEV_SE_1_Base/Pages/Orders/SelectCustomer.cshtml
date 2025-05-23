@@ -1,19 +1,19 @@
 @page
 @model KE03_INTDEV_SE_1_Base.Pages.Orders.SelectCustomerModel
 @{
-    ViewData["Title"] = "Select Customer";
+    ViewData["Title"] = "Selecteer Klant";
 }
 
 <div class="container">
-    <h2>Select Customer</h2>
+    <h2>Selecteer Klant</h2>
     <div class="row">
         <div class="col-md-12">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Address</th>
-                        <th>Action</th>
+                        <th>Naam</th>
+                        <th>Adres</th>
+                        <th>Actie</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -23,7 +23,7 @@
                             <td>@customer.Name</td>
                             <td>@customer.Address</td>
                             <td>
-                                <a asp-page="./CreateOrder" asp-route-customerId="@customer.Id" class="btn btn-primary">Select</a>
+                                <a asp-page="./CreateOrder" asp-route-customerId="@customer.Id" class="btn btn-primary">Selecteer</a>
                             </td>
                         </tr>
                     }

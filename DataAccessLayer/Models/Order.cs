@@ -20,6 +20,8 @@ namespace DataAccessLayer.Models
         [Required]
         public string Status { get; set; } = "Pending";
 
-        public ICollection<Product> Products { get; } = new List<Product>();
+        public ICollection<OrderProduct> OrderProducts { get; } = new List<OrderProduct>();
+
+        public decimal Total => OrderProducts.Sum(op => op.Product.Price * op.Quantity);
     }
 }

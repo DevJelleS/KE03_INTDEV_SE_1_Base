@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using DataAccessLayer.Models;
 using DataAccessLayer;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace KE03_INTDEV_SE_1_Base.Pages.Orders
 {
@@ -16,9 +17,9 @@ namespace KE03_INTDEV_SE_1_Base.Pages.Orders
             _context = context;
         }
 
-        public Customer Customer { get; set; }
-        public IList<Product> AvailableProducts { get; set; }
-        public IList<Product> SelectedProducts { get; set; } = new List<Product>();
+        public Customer? Customer { get; set; }
+        public IList<Product> AvailableProducts { get; set; } = new List<Product>();
+        public IList<OrderProduct> SelectedProducts { get; set; } = new List<OrderProduct>();
 
         public async Task<IActionResult> OnGetAsync(int customerId)
         {
@@ -28,34 +29,50 @@ namespace KE03_INTDEV_SE_1_Base.Pages.Orders
                 return NotFound();
             }
 
-            AvailableProducts = _context.Products.ToList();
+            AvailableProducts = await _context.Products.ToListAsync();
             
             // Get selected products from session
             var selectedProductsJson = HttpContext.Session.GetString(SelectedProductsKey);
             if (!string.IsNullOrEmpty(selectedProductsJson))
             {
-                var selectedProductIds = JsonSerializer.Deserialize<List<int>>(selectedProductsJson) ?? new List<int>();
-                SelectedProducts = _context.Products.Where(p => selectedProductIds.Contains(p.Id)).ToList();
+                var selectedProducts = JsonSerializer.Deserialize<List<OrderProduct>>(selectedProductsJson) ?? new List<OrderProduct>();
+                foreach (var item in selectedProducts)
+                {
+                    item.Product = await _context.Products.FindAsync(item.ProductId);
+                }
+                SelectedProducts = selectedProducts;
             }
 
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAddProductAsync(int customerId, int productId)
+        public async Task<IActionResult> OnPostAddProductAsync(int customerId, int productId, int quantity)
         {
+            if (quantity < 1) quantity = 1;
+
             var selectedProductsJson = HttpContext.Session.GetString(SelectedProductsKey);
-            var selectedProductIds = new List<int>();
+            var selectedProducts = new List<OrderProduct>();
 
             if (!string.IsNullOrEmpty(selectedProductsJson))
             {
-                selectedProductIds = JsonSerializer.Deserialize<List<int>>(selectedProductsJson) ?? new List<int>();
+                selectedProducts = JsonSerializer.Deserialize<List<OrderProduct>>(selectedProductsJson) ?? new List<OrderProduct>();
             }
 
-            if (!selectedProductIds.Contains(productId))
+            var existingProduct = selectedProducts.FirstOrDefault(p => p.ProductId == productId);
+            if (existingProduct != null)
             {
-                selectedProductIds.Add(productId);
-                HttpContext.Session.SetString(SelectedProductsKey, JsonSerializer.Serialize(selectedProductIds));
+                existingProduct.Quantity += quantity;
             }
+            else
+            {
+                selectedProducts.Add(new OrderProduct
+                {
+                    ProductId = productId,
+                    Quantity = quantity
+                });
+            }
+
+            HttpContext.Session.SetString(SelectedProductsKey, JsonSerializer.Serialize(selectedProducts));
 
             return RedirectToPage(new { customerId });
         }
@@ -65,9 +82,9 @@ namespace KE03_INTDEV_SE_1_Base.Pages.Orders
             var selectedProductsJson = HttpContext.Session.GetString(SelectedProductsKey);
             if (!string.IsNullOrEmpty(selectedProductsJson))
             {
-                var selectedProductIds = JsonSerializer.Deserialize<List<int>>(selectedProductsJson) ?? new List<int>();
-                selectedProductIds.Remove(productId);
-                HttpContext.Session.SetString(SelectedProductsKey, JsonSerializer.Serialize(selectedProductIds));
+                var selectedProducts = JsonSerializer.Deserialize<List<OrderProduct>>(selectedProductsJson) ?? new List<OrderProduct>();
+                selectedProducts.RemoveAll(p => p.ProductId == productId);
+                HttpContext.Session.SetString(SelectedProductsKey, JsonSerializer.Serialize(selectedProducts));
             }
 
             return RedirectToPage(new { customerId });
@@ -81,9 +98,8 @@ namespace KE03_INTDEV_SE_1_Base.Pages.Orders
                 return RedirectToPage(new { customerId });
             }
 
-            var selectedProductIds = JsonSerializer.Deserialize<List<int>>(selectedProductsJson) ?? new List<int>();
-            var products = _context.Products.Where(p => selectedProductIds.Contains(p.Id)).ToList();
-
+            var selectedProducts = JsonSerializer.Deserialize<List<OrderProduct>>(selectedProductsJson) ?? new List<OrderProduct>();
+            
             var order = new Order
             {
                 CustomerId = customerId,
@@ -91,10 +107,17 @@ namespace KE03_INTDEV_SE_1_Base.Pages.Orders
                 Status = "Confirmed"
             };
 
-            // Add products to the order using the collection's Add method
-            foreach (var product in products)
+            foreach (var item in selectedProducts)
             {
-                order.Products.Add(product);
+                var product = await _context.Products.FindAsync(item.ProductId);
+                if (product != null)
+                {
+                    order.OrderProducts.Add(new OrderProduct
+                    {
+                        Product = product,
+                        Quantity = item.Quantity
+                    });
+                }
             }
 
             _context.Orders.Add(order);

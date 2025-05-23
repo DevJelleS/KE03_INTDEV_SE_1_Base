@@ -9,11 +9,11 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="mb-0">Select Customer</h2>
+                    <h2 class="mb-0">Selecteer Klant</h2>
                 </div>
                 <div class="card-body">
                     <select id="customerSelect" class="form-control form-control-lg" onchange="loadCustomerOrders(this.value)">
-                        <option value="">-- Select a Customer --</option>
+                        <option value="">-- Selecteer een Klant --</option>
                         @foreach (var customer in Model.Customers)
                         {
                             <option value="@customer.Id">@customer.Name</option>
@@ -27,9 +27,9 @@
     <div id="orderHistory" class="row" style="display: none;">
         <div class="col-md-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3>Order History</h3>
+                <h3>Bestelgeschiedenis</h3>
                 <a id="startOrderBtn" href="#" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Start New Order
+                    <i class="fas fa-plus"></i> Nieuwe Bestelling
                 </a>
             </div>
             <div id="ordersList">
@@ -57,43 +57,47 @@
                     if (data.length === 0) {
                         ordersList.innerHTML = `
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i> No orders found for this customer.
+                                <i class="fas fa-info-circle"></i> Geen bestellingen gevonden voor deze klant.
                             </div>`;
                     } else {
                         let html = '';
                         data.forEach(order => {
-                            const total = order.products.reduce((sum, p) => sum + p.price, 0);
+                            const total = order.products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
                             html += `
                                 <div class="card mb-4">
                                     <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">Order #${order.id}</h5>
+                                        <h5 class="mb-0">Bestelling #${order.id}</h5>
                                         <span class="badge bg-${order.status === 'Confirmed' ? 'success' : 'warning'}">
-                                            ${order.status}
+                                            ${order.status === 'Confirmed' ? 'Bevestigd' : 'In behandeling'}
                                         </span>
                                     </div>
                                     <div class="card-body">
                                         <div class="text-muted mb-3">
-                                            <i class="fas fa-calendar"></i> ${new Date(order.orderDate).toLocaleString()}
+                                            <i class="fas fa-calendar"></i> ${new Date(order.orderDate).toLocaleString('nl-NL')}
                                         </div>
                                         <table class="table">
                                             <thead>
                                                 <tr>
                                                     <th>Product</th>
-                                                    <th class="text-end">Price</th>
+                                                    <th>Aantal</th>
+                                                    <th class="text-end">Prijs</th>
+                                                    <th class="text-end">Subtotaal</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 ${order.products.map(product => `
                                                     <tr>
                                                         <td>${product.name}</td>
-                                                        <td class="text-end price">$${product.price.toFixed(2)}</td>
+                                                        <td>${product.quantity}</td>
+                                                        <td class="text-end price">€${product.price.toFixed(2)}</td>
+                                                        <td class="text-end">€${(product.price * product.quantity).toFixed(2)}</td>
                                                     </tr>
                                                 `).join('')}
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                                    <th>Total</th>
-                                                    <th class="text-end total-price">$${total.toFixed(2)}</th>
+                                                    <th colspan="3">Totaal</th>
+                                                    <th class="text-end total-price">€${total.toFixed(2)}</th>
                                                 </tr>
                                             </tfoot>
                                         </table>
