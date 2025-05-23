@@ -1,0 +1,74 @@
+@page "{customerId:int}"
+@model KE03_INTDEV_SE_1_Base.Pages.Orders.CreateOrderModel
+@{
+    ViewData["Title"] = "Create Order";
+}
+
+<div class="container">
+    <h2>Create Order for @Model.Customer.Name</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h4>Add Products</h4>
+            <form method="post" asp-page-handler="AddProduct">
+                <input type="hidden" name="customerId" value="@Model.Customer.Id" />
+                <div class="form-group">
+                    <select name="productId" class="form-control">
+                        @foreach (var product in Model.AvailableProducts)
+                        {
+                            <option value="@product.Id">@product.Name - $@product.Price</option>
+                        }
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Add Product</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Current Order</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model.SelectedProducts)
+                    {
+                        <tr>
+                            <td>@product.Name</td>
+                            <td>$@product.Price</td>
+                            <td>
+                                <form method="post" asp-page-handler="RemoveProduct" style="display: inline;">
+                                    <input type="hidden" name="customerId" value="@Model.Customer.Id" />
+                                    <input type="hidden" name="productId" value="@product.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Total</th>
+                        <th>$@Model.SelectedProducts.Sum(p => p.Price)</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <form method="post" asp-page-handler="ConfirmOrder">
+                <input type="hidden" name="customerId" value="@Model.Customer.Id" />
+                <button type="submit" class="btn btn-success" @(Model.SelectedProducts.Any() ? "" : "disabled")>Confirm Order</button>
+            </form>
+        </div>
+    </div>
+</div> 

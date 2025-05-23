@@ -25,6 +25,15 @@ namespace KE03_INTDEV_SE_1_Base
             // Add services to the container.
             builder.Services.AddRazorPages();
 
+            // Add session services
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -50,6 +59,9 @@ namespace KE03_INTDEV_SE_1_Base
             app.UseRouting();
 
             app.UseAuthorization();
+
+            // Add session middleware
+            app.UseSession();
 
             app.MapRazorPages();
 

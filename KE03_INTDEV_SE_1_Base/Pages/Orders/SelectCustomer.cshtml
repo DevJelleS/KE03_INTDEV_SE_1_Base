@@ -1,0 +1,34 @@
+@page
+@model KE03_INTDEV_SE_1_Base.Pages.Orders.SelectCustomerModel
+@{
+    ViewData["Title"] = "Select Customer";
+}
+
+<div class="container">
+    <h2>Select Customer</h2>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var customer in Model.Customers)
+                    {
+                        <tr>
+                            <td>@customer.Name</td>
+                            <td>@customer.Address</td>
+                            <td>
+                                <a asp-page="./CreateOrder" asp-route-customerId="@customer.Id" class="btn btn-primary">Select</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> 

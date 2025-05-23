@@ -1,0 +1,60 @@
+@page "{customerId:int}"
+@model KE03_INTDEV_SE_1_Base.Pages.Orders.OrderHistoryModel
+@{
+    ViewData["Title"] = "Order History";
+}
+
+<div class="container">
+    <h2>Order History for @Model.Customer.Name</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a asp-page="./CreateOrder" asp-route-customerId="@Model.Customer.Id" class="btn btn-primary">Create New Order</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            @if (!Model.Orders.Any())
+            {
+                <p>No orders found for this customer.</p>
+            }
+            else
+            {
+                @foreach (var order in Model.Orders)
+                {
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Order #@order.Id - @order.OrderDate.ToString("g")</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var product in order.Products)
+                                    {
+                                        <tr>
+                                            <td>@product.Name</td>
+                                            <td>$@product.Price</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Total</th>
+                                        <th>$@order.Products.Sum(p => p.Price)</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div> 
