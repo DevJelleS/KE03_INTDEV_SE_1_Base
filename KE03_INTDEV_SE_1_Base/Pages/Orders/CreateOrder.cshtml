@@ -10,71 +10,84 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <h4>Producten Toevoegen</h4>
-            <form method="post" asp-page-handler="AddProduct">
-                <input type="hidden" name="customerId" value="@Model.Customer.Id" />
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="form-group">
-                            <select name="productId" class="form-control">
-                                @foreach (var product in Model.AvailableProducts)
-                                {
-                                    <option value="@product.Id">@product.Name - €@product.Price</option>
-                                }
-                            </select>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                @foreach (var product in Model.AvailableProducts)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">@product.Name</h5>
+                                <p class="card-text">€@product.Price</p>
+                                <form method="post" asp-page-handler="AddProduct" class="d-flex align-items-center">
+                                    <input type="hidden" name="customerId" value="@Model.Customer.Id" />
+                                    <input type="hidden" name="productId" value="@product.Id" />
+                                    <div class="input-group me-2" style="width: 120px;">
+                                        <input type="number" name="quantity" class="form-control" value="1" min="1" />
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Toevoegen
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <input type="number" name="quantity" class="form-control" value="1" min="1" />
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary">Toevoegen</button>
-                    </div>
-                </div>
-            </form>
+                }
+            </div>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12">
             <h4>Huidige Bestelling</h4>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Aantal</th>
-                        <th>Prijs</th>
-                        <th>Subtotaal</th>
-                        <th>Actie</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.SelectedProducts)
-                    {
-                        <tr>
-                            <td>@item.Product.Name</td>
-                            <td>@item.Quantity</td>
-                            <td>€@item.Product.Price</td>
-                            <td>€@(item.Product.Price * item.Quantity)</td>
-                            <td>
-                                <form method="post" asp-page-handler="RemoveProduct" style="display: inline;">
-                                    <input type="hidden" name="customerId" value="@Model.Customer.Id" />
-                                    <input type="hidden" name="productId" value="@item.Product.Id" />
-                                    <button type="submit" class="btn btn-danger btn-sm">Verwijderen</button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="3">Totaal</th>
-                        <th>€@Model.SelectedProducts.Sum(p => p.Product.Price * p.Quantity)</th>
-                        <th></th>
-                    </tr>
-                </tfoot>
-            </table>
+            @if (!Model.SelectedProducts.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Geen producten toegevoegd aan de bestelling.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Aantal</th>
+                                <th>Prijs</th>
+                                <th>Subtotaal</th>
+                                <th>Actie</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.SelectedProducts)
+                            {
+                                <tr>
+                                    <td>@item.Product.Name</td>
+                                    <td>@item.Quantity</td>
+                                    <td>€@item.Product.Price</td>
+                                    <td>€@(item.Product.Price * item.Quantity)</td>
+                                    <td>
+                                        <form method="post" asp-page-handler="RemoveProduct" style="display: inline;">
+                                            <input type="hidden" name="customerId" value="@Model.Customer.Id" />
+                                            <input type="hidden" name="productId" value="@item.Product.Id" />
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i> Verwijderen
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="3">Totaal</th>
+                                <th>€@Model.SelectedProducts.Sum(p => p.Product.Price * p.Quantity)</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
         </div>
     </div>
 
@@ -82,7 +95,9 @@
         <div class="col-md-12">
             <form method="post" asp-page-handler="ConfirmOrder">
                 <input type="hidden" name="customerId" value="@Model.Customer.Id" />
-                <button type="submit" class="btn btn-success" @(Model.SelectedProducts.Any() ? "" : "disabled")>Bestelling Bevestigen</button>
+                <button type="submit" class="btn btn-success btn-lg" @(Model.SelectedProducts.Any() ? "" : "disabled")>
+                    <i class="fas fa-check"></i> Bestelling Bevestigen
+                </button>
             </form>
         </div>
     </div>
