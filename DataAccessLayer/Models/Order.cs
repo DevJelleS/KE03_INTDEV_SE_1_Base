@@ -17,6 +17,9 @@ namespace DataAccessLayer.Models
         
         public Customer Customer { get; set; } = null!;
 
+        [Required]
+        public string Status { get; set; } = "Pending";
+
         public ICollection<Product> Products { get; } = new List<Product>();
     }
 }

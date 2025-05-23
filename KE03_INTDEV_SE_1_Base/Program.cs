@@ -24,6 +24,7 @@ namespace KE03_INTDEV_SE_1_Base
 
             // Add services to the container.
             builder.Services.AddRazorPages();
+            builder.Services.AddControllers(); // Add API controllers
 
             // Add session services
             builder.Services.AddDistributedMemoryCache();
@@ -49,7 +50,11 @@ namespace KE03_INTDEV_SE_1_Base
                 var services = scope.ServiceProvider;
 
                 var context = services.GetRequiredService<MatrixIncDbContext>();
+                // Delete the database if it exists
+                context.Database.EnsureDeleted();
+                // Create the database with the new schema
                 context.Database.EnsureCreated();
+                // Initialize the database with sample data
                 MatrixIncDbInitializer.Initialize(context);
             }
 
@@ -64,6 +69,7 @@ namespace KE03_INTDEV_SE_1_Base
             app.UseSession();
 
             app.MapRazorPages();
+            app.MapControllers(); // Map API controllers
 
             app.Run();
         }

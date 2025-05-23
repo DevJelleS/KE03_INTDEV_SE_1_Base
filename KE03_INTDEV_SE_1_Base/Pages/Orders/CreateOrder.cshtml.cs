@@ -87,7 +87,8 @@ namespace KE03_INTDEV_SE_1_Base.Pages.Orders
             var order = new Order
             {
                 CustomerId = customerId,
-                OrderDate = DateTime.UtcNow
+                OrderDate = DateTime.UtcNow,
+                Status = "Confirmed"
             };
 
             // Add products to the order using the collection's Add method

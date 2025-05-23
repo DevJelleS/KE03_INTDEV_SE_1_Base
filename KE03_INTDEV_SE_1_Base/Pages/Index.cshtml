@@ -1,41 +1,112 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
-<div class="alert-info">
-    <p class="p-1">
-        Dit project kun je gebruiken als startpunt voor de individuele inleveropdracht: <a href="https://moodle.zuyd.nl/mod/resource/view.php?id=1262065">KE03_INTDEV_SE_1</a>
 
-        <ul>
-            <li>Wat ga je maken: Een gebruiksvriendelijk online bestelsysteem voor een klant om producten te bestellen.</li>
-            <li>
-                Hoe ga je dit maken?<br />
-                - Individuele inleveropdracht.<br/>
-                - Pas de principes van HCI toe (bijv. Paper prototyping, design principles etc…)<br />
-                - Maak gebruik van: .NET core razor pages met bijbehorende zaken zoals, html, css, js, bootstrap, jquery<br />
-                - Maak gebruik van git en github voor source control van jouw code<br />
-            </li>
-            <li>
-                Je krijgt een dal (data access layer) meegeleverd. Qua inhoud is die niet perfect gevuld, maar qua structuur biedt die voldoende om een mooi bestel systeem te kunnen maken. <br /> 
-                Maar mis je iets, je bent vrij om alles naar wens aan te passen! Ben creatief!
-            </li>
-        </ul>
-    </p>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Select Customer</h2>
+                </div>
+                <div class="card-body">
+                    <select id="customerSelect" class="form-control form-control-lg" onchange="loadCustomerOrders(this.value)">
+                        <option value="">-- Select a Customer --</option>
+                        @foreach (var customer in Model.Customers)
+                        {
+                            <option value="@customer.Id">@customer.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="orderHistory" class="row" style="display: none;">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>Order History</h3>
+                <a id="startOrderBtn" href="#" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Start New Order
+                </a>
+            </div>
+            <div id="ordersList">
+                <!-- Orders will be loaded here -->
+            </div>
+        </div>
+    </div>
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Klant</th>
-            <th>Aantal Orders</th>
-        </tr>
-    </thead>
-    @foreach (var c in Model.Customers)
-    {        
-        <tr>
-            <td>@Html.DisplayName(c.Name)</td>
-            <td>@Html.DisplayName(c.Orders.Count.ToString())</td>           
-        </tr>
-    }
-</table>
+@section Scripts {
+    <script>
+        function loadCustomerOrders(customerId) {
+            if (!customerId) {
+                document.getElementById('orderHistory').style.display = 'none';
+                return;
+            }
+
+            fetch(`/api/orders/${customerId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const ordersList = document.getElementById('ordersList');
+                    const orderHistory = document.getElementById('orderHistory');
+                    const startOrderBtn = document.getElementById('startOrderBtn');
+
+                    if (data.length === 0) {
+                        ordersList.innerHTML = `
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> No orders found for this customer.
+                            </div>`;
+                    } else {
+                        let html = '';
+                        data.forEach(order => {
+                            const total = order.products.reduce((sum, p) => sum + p.price, 0);
+                            html += `
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Order #${order.id}</h5>
+                                        <span class="badge bg-${order.status === 'Confirmed' ? 'success' : 'warning'}">
+                                            ${order.status}
+                                        </span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-muted mb-3">
+                                            <i class="fas fa-calendar"></i> ${new Date(order.orderDate).toLocaleString()}
+                                        </div>
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th class="text-end">Price</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${order.products.map(product => `
+                                                    <tr>
+                                                        <td>${product.name}</td>
+                                                        <td class="text-end price">$${product.price.toFixed(2)}</td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <th>Total</th>
+                                                    <th class="text-end total-price">$${total.toFixed(2)}</th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        ordersList.innerHTML = html;
+                    }
+
+                    orderHistory.style.display = 'block';
+                    startOrderBtn.href = `/Orders/CreateOrder/${customerId}`;
+                });
+        }
+    </script>
+}

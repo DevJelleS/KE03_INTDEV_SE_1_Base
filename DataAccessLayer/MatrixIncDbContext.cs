@@ -19,20 +19,18 @@ namespace DataAccessLayer
             modelBuilder.Entity<Customer>()
                 .HasMany(c => c.Orders)
                 .WithOne(o => o.Customer)
-                .HasForeignKey(o => o.CustomerId).IsRequired();
+                .HasForeignKey(o => o.CustomerId)
+                .IsRequired();
 
-            //modelBuilder.Entity<Order>()
-            //    .HasOne(o => o.Customer)
-            //    .WithMany(c => c.Orders)
-            //    .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.Products)
+                .WithMany(p => p.Orders)
+                .UsingEntity(j => j.ToTable("OrderProduct"));
 
             modelBuilder.Entity<Product>()
-                .HasMany(p => p.Orders)
-                .WithMany(o => o.Products);
-
-            modelBuilder.Entity<Part>()
-                .HasMany(p => p.Products)
-                .WithMany(p => p.Parts);
+                .HasMany(p => p.Parts)
+                .WithMany(p => p.Products)
+                .UsingEntity(j => j.ToTable("ProductPart"));
 
             base.OnModelCreating(modelBuilder);
         }
